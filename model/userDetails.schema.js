@@ -19,23 +19,6 @@ const userSchema = new mongoose.Schema({
     required: true
   },
   profilePic: {
-    fullName: {
-      type: String,
-      required: true,
-      trim: true
-    },
-    bio: {
-      type: String,
-      maxlength: 160
-    },
-    website: {
-      type: String,
-      match: [/^https?:\/\/.+\..+/, 'Please enter a valid URL']
-    },
-    location: {
-      type: String,
-      maxlength: 100
-    },
     profilePicture: {
       type: String,
       default: 'default-profile-pic-url.jpg'
