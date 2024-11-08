@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt'
-import userModel from "../model/userDetails.schema";
+import userModel from "../model/userDetails.schema.js";
 
 
 const userDetailsController = {
