@@ -1,7 +1,6 @@
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import cors from "cors"
 import destiRouter from "./routes/destiRouter.js";
 import userDetailsRouter from "./routes/userDetailsRouter.js";
 await mongoose.connect(process.env.MONGOCONNECT);
