@@ -21,7 +21,7 @@ const authService = {
       if (!user) {
         throw new Error("Invalid email or password");
       }
-      const checkPassword = await bcrypt.hash(password, user.salt);
+      const checkPassword = await bcrypt.compareSync(password, user.password);
       if (checkPassword !== user.password) {
         throw new Error("Invalid email or password");
       }
