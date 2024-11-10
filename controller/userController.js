@@ -1,6 +1,9 @@
 // import { Request, Response } from 'express'
 import userModel from '../model/user.schema.js';
 import authService from '../services/authService.js'
+import 'dotenv/config';
+
+const JWT_SECRET = process.env.SECRETKEY;
 
 const userController = {
   registerUser: async (req, res) => {
