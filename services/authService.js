@@ -34,7 +34,14 @@ const authService = {
           expiresIn: "1h",
         }
       );
-      return token;
+      return {
+        token,
+        user: {
+            id: user._id,
+            name: user.name,
+            email: user.email
+        }
+    };
     },
   };
   
