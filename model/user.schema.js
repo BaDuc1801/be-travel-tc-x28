@@ -21,7 +21,7 @@ password: {
 profilePic: {
   profilePicture: {
     type: String,
-    default: 'default-profile-pic-url.jpg'
+    default: "https://res.cloudinary.com/dzpw9bihb/image/upload/v1726676632/wgbdsrflw8b1vdalkqht.jpg"
   },
   bannerImage: {
     type: String
