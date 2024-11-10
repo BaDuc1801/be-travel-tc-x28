@@ -19,30 +19,35 @@ const userController = {
       }
     }
   },
-  loginUser: async (email, password) => {
-    const user = await userModel.findOne({ email });
-    if (!user) {
-      throw new Error("Invalid email or password");
-    }
-    const checkPassword = bcrypt.compareSync(password, user.password);
-    if (!checkPassword) {
-      throw new Error("Invalid email or password");
-    }
-
-    const token = jwt.sign(
-      { id: user._id, name: user.name, email: user.email },
-      JWT_SECRET,
-      {
-        expiresIn: "1h",
+  loginUser: async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      const user = await userModel.findOne({ email });
+      if (!user) {
+        return res.status(400).json({ message: "Invalid email or password" });
       }
-    );
-    return {
-      id: user._id,
-      name: user.name,
-      email: user.email,
-      profilePic: user.profilePic,
-      token: token
-    };
+
+      const checkPassword = bcrypt.compareSync(password, user.password);
+      if (!checkPassword) {
+        return res.status(400).json({ message: "Invalid email or password" });
+      }
+
+      const token = jwt.sign(
+        { id: user._id, name: user.name, email: user.email },
+        JWT_SECRET,
+        { expiresIn: "1h" }
+      );
+
+      return res.status(200).json({
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        profilePic: user.profilePic,
+        token: token,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error.message || 'Login failed' });
+    }
   },
   getAllUsers: async (req, res) => {
     try {
