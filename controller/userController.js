@@ -16,18 +16,30 @@ const userController = {
       }
     }
   },
-  loginUser: async (req, res) => {
-    try {
-      const { email, password } = req.body;
-      const user = await authService.loginUser(email, password);
-      res.status(200).json({ user });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(400).json({ message: error.message });
-      } else {
-        res.status(500).json({ message: 'An unexpected error occurred' });
-      }
+  loginUser: async (email, password) => {
+    const user = await userModel.findOne({ email });
+    if (!user) {
+      throw new Error("Invalid email or password");
     }
+    const checkPassword = bcrypt.compareSync(password, user.password);
+    if (!checkPassword) {
+      throw new Error("Invalid email or password");
+    }
+
+    const token = jwt.sign(
+      { id: user._id, name: user.name, email: user.email },
+      JWT_SECRET,
+      {
+        expiresIn: "1h",
+      }
+    );
+    return {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      profilePic: user.profilePic,
+      token: token
+    };
   },
   getAllUsers: async (req, res) => {
     try {
