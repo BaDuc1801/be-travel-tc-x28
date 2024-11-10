@@ -34,12 +34,12 @@ const authService = {
         }
       );
       return {
-        token,
         user: {
             id: user._id,
             name: user.name,
             email: user.email,
-            profilePic: user.profilePic
+            profilePic: user.profilePic,
+            token: token
         }
     };
     },
