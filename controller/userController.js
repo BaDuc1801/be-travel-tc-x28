@@ -1,4 +1,5 @@
 // import { Request, Response } from 'express'
+import userModel from '../model/user.schema.js';
 import authService from '../services/authService.js'
 
 const userController = {
@@ -18,8 +19,8 @@ const userController = {
   loginUser: async (req, res) => {
     try {
       const { email, password } = req.body;
-      const token = await authService.loginUser(email, password);
-      res.status(200).json({ token });
+      const user = await authService.loginUser(email, password);
+      res.status(200).json({ user });
     } catch (error) {
       if (error instanceof Error) {
         res.status(400).json({ message: error.message });
