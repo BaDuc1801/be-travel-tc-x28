@@ -3,7 +3,7 @@ import userModel from '../model/authModel.js';
 import jwt from 'jsonwebtoken';
 import 'dotenv/config';
 
-const JWT_SECRET = "abcdedf";
+const JWT_SECRET = process.env.SECRETKEY;
 
 const authService = {
     registerUser: async (name, email, password) => {
