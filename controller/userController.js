@@ -1,6 +1,7 @@
-// import { Request, Response } from 'express'
 import userModel from '../model/user.schema.js';
 import authService from '../services/authService.js'
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 import 'dotenv/config';
 
 const JWT_SECRET = process.env.SECRETKEY;
