@@ -1,5 +1,5 @@
 // import { NextFunction, Request, Response } from 'express'
-import userModel from '../model/authModel.js'
+import userModel from '../model/user.schema.js'
 
 const authMiddleware = {
   registerUser: async (req, res, next) => {
