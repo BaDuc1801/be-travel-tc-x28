@@ -20,5 +20,5 @@ app.get("/", (req, res)=>{
 })
 
 app.listen(8080, () => {
-  console.log("Server is running!");
+  console.log(`Server is running at localhost:8080!`);
 });
