@@ -5,6 +5,7 @@ import destiRouter from "./routes/destiRouter.js";
 await mongoose.connect(process.env.MONGOCONNECT);
 import cors from 'cors'
 import userRouter from "./routes/userRouter.js";
+import cityRouter from "./routes/cityRouter.js";
 
 const app = express();
 app.use(express.json());
@@ -12,7 +13,7 @@ app.use(cors());
 
 app.use('/api', userRouter);
 app.use('/destinations', destiRouter)
-
+app.use('/cities', cityRouter)
 
 app.get("/", (req, res)=>{
   res.status(200).json({message: "hello"})
