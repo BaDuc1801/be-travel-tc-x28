@@ -1,3 +1,5 @@
+// TODO: fix getUserInfo api and add more route
+
 import userModel from '../model/user.schema.js';
 import authService from '../services/authService.js'
 import bcrypt from 'bcrypt';
