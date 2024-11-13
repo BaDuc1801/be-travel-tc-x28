@@ -11,6 +11,7 @@ const upload = multer({
 
 cityRouter.get('/', CityController.getListCity)
 cityRouter.post('', CityController.postCity)
+cityRouter.get('/infor/:name', CityController.findCity)
 cityRouter.put('/update/:name', CityController.updateCity);
 cityRouter.put('/up-img', upload.single('img'), CityController.uploadImg);
 cityRouter.delete('/delete/:name', CityController.deleteCity)
