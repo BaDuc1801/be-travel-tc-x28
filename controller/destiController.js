@@ -19,13 +19,22 @@ const destiController = {
         }
     },
 
-    postDesti : async (req, res) => {
+    postDesti: async (req, res) => {
         try {
             const newDest = req.body;
             const dest = await destiModel.create(newDest);
-            res.status(200).send(dest)
-            console.log(dest)
-        } catch(e){
+
+            // Tìm city dựa trên tên trong địa điểm mới
+            const city = await CityModel.findOne({ cityName: newDest.city });
+            if (city) {
+                // Thêm ID của địa điểm mới vào mảng destinations trong city
+                city.destinations.push(dest._id);
+                await city.save();
+            }
+
+            res.status(200).send(dest);
+            console.log(dest);
+        } catch (e) {
             res.status(500).send({
                 message: e.message
             });
