@@ -5,6 +5,7 @@ import authService from '../services/authService.js'
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import 'dotenv/config';
+import mongoose from 'mongoose';
 
 const JWT_SECRET = process.env.SECRETKEY;
 
@@ -64,14 +65,12 @@ const userController = {
   },
   getUserInfo: async (req, res) => {
     try {
-      const userParam = req.params.user;
+      const userId = req.params.id;
+      if(!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).send({message: "Invalid user ID"})
+      }
 
-      const user = await userModel.findOne({
-        $or: [
-          { name: userParam },
-          { __id: userParam }
-        ]
-      })
+      const user = await userModel.findById(userId);
 
       if (!user) {
         return res.status(404).send({ message: 'User not found' })
