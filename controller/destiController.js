@@ -1,6 +1,6 @@
 import destiModel from "../model/desti.schema.js"
 import dotenv from 'dotenv';
-import { v2 as cloudinary} from 'cloudinary'
+import { v2 as cloudinary } from 'cloudinary'
 import CityModel from "../model/city.schema.js";
 dotenv.config();
 
@@ -8,11 +8,29 @@ const getCloudinaryConfig = JSON.parse(process.env.CLOUD_DINARY_CONFIG);
 cloudinary.config(getCloudinaryConfig);
 
 const destiController = {
-    getListDesti : async (req, res) => {
+    getListDesti: async (req, res) => {
         try {
             const dest = await destiModel.find();
             res.status(200).send(dest)
-        } catch(e){
+        } catch (e) {
+            res.status(500).send({
+                message: e.message
+            });
+        }
+    },
+
+    getListDestiByID: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const destination = await destiModel.findById(id);
+            if (!destination) {
+                return res.status(404).send({
+                    message: "Destination not found"
+                });
+            }
+            res.status(200).send(destination);
+        } catch (e) {
+            console.error('Error in getListDestiByID:', e);
             res.status(500).send({
                 message: e.message
             });
@@ -22,16 +40,36 @@ const destiController = {
     postDesti: async (req, res) => {
         try {
             const newDest = req.body;
-            const dest = await destiModel.create(newDest);
-            // Tìm city dựa trên tên trong địa điểm mới
-            const city = await CityModel.findOne({ cityName: newDest.city });
-            if (city) {
-                // Thêm ID của địa điểm mới vào mảng destinations trong city
-                city.destinations.push(dest._id);
-                await city.save();
+            console.log('Request body:', newDest); // Kiểm tra dữ liệu gửi lên
+
+            // Kiểm tra xem có tên thành phố không
+            if (!newDest.city) {
+                return res.status(400).send({
+                    message: "City name is required"
+                });
             }
+
+            // Tìm city và log kết quả
+            const city = await CityModel.findOne({ cityName: newDest.city });
+            console.log('Found city:', city);
+
+            if (!city) {
+                return res.status(404).send({
+                    message: "City not found"
+                });
+            }
+
+            // Tạo destination mới
+            const dest = await destiModel.create(newDest);
+            console.log('Created destination:', dest);
+
+            // Thêm ID của địa điểm mới vào mảng destinations trong city
+            city.destinations.push(dest._id);
+            await city.save();
+
             res.status(200).send(dest);
         } catch (e) {
+            console.error('Error in postDesti:', e); // Log lỗi chi tiết
             res.status(500).send({
                 message: e.message
             });
@@ -40,8 +78,8 @@ const destiController = {
 
     updateDesti: async (req, res) => {
         try {
-            const { name } = req.params; 
-            const updatedData = req.body; 
+            const { name } = req.params;
+            const updatedData = req.body;
             const updatedDest = await destiModel.findOneAndUpdate({ destiName: name }, updatedData, { new: true });
             if (!updatedDest) {
                 return res.status(404).send({ message: "Destination not found" });
@@ -56,7 +94,7 @@ const destiController = {
 
     deleteDesti: async (req, res) => {
         try {
-            const { name } = req.params; 
+            const { name } = req.params;
             const deletedDest = await destiModel.findOneAndDelete({ destiName: name });
             if (!deletedDest) {
                 return res.status(404).send({ message: "Destination not found" });
@@ -71,13 +109,13 @@ const destiController = {
 
     uploadImg: async (req, res) => {
         let img = req.file;
-        let {name} = req.query;
+        let { name } = req.query;
         let dest = await destiModel.findOne({ destiName: name });
         if (dest) {
-            if(img){
+            if (img) {
                 const dataUrl = `data:${img.mimetype};base64,${img.buffer.toString('base64')}`;
                 await cloudinary.uploader.upload(dataUrl,
-                    {resource_type: 'auto'},
+                    { resource_type: 'auto' },
                     async (err, result) => {
                         if (result && result.url) {
                             dest.img = result.url;
@@ -88,7 +126,7 @@ const destiController = {
                             });
                         } else {
                             return res.status(500).json({
-                                message: 'Error when upload file: '  + err.message
+                                message: 'Error when upload file: ' + err.message
                             });
                         }
                     }
