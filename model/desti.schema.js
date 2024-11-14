@@ -6,8 +6,7 @@ const destiSchema = new mongoose.Schema({
     description: String,
     img: String,
     coordinates: {
-        type: [Number], 
-        index: '2dsphere' 
+        type: [Number]
     }
 })
 
