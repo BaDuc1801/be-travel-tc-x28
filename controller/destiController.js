@@ -1,6 +1,7 @@
 import destiModel from "../model/desti.schema.js"
 import dotenv from 'dotenv';
 import { v2 as cloudinary} from 'cloudinary'
+import CityModel from "../model/city.schema.js";
 dotenv.config();
 
 const getCloudinaryConfig = JSON.parse(process.env.CLOUD_DINARY_CONFIG);
@@ -33,12 +34,30 @@ const destiController = {
 
     updateDesti: async (req, res) => {
         try {
-            const { name } = req.params; 
-            const updatedData = req.body; 
+            const { name } = req.params; // Tên địa điểm
+            const updatedData = req.body; // Dữ liệu cập nhật
             const updatedDest = await destiModel.findOneAndUpdate({ destiName: name }, updatedData, { new: true });
+            
             if (!updatedDest) {
                 return res.status(404).send({ message: "Destination not found" });
             }
+
+            // Tìm thành phố tương ứng dựa trên tên thành phố trong updatedDest
+            const city = await CityModel.findOne({ cityName: updatedDest.city });
+            
+            if (city) {
+                // Kiểm tra xem địa điểm đã có trong danh sách destinations của city chưa
+                const isPlaceAlreadyInCity = city.destinations.some(place => place.toString() === updatedDest._id.toString());
+
+                if (!isPlaceAlreadyInCity) {
+                    // Nếu chưa có, thêm id của địa điểm vào danh sách destinations của thành phố
+                    city.destinations.push(updatedDest._id);
+                    await city.save();
+                }
+            } else {
+                return res.status(404).send({ message: "City not found for the updated destination" });
+            }
+
             res.status(200).send(updatedDest);
         } catch (e) {
             res.status(500).send({

@@ -1,17 +1,29 @@
 import dotenv from 'dotenv';
 import { v2 as cloudinary} from 'cloudinary'
 import CityModel from "../model/city.schema.js";
+import destiModel from '../model/desti.schema.js';
 dotenv.config();
 
 const getCloudinaryConfig = JSON.parse(process.env.CLOUD_DINARY_CONFIG);
 cloudinary.config(getCloudinaryConfig);
 
 const CityController = {
-    getListCity : async (req, res) => {
+    postDesti: async (req, res) => {
         try {
-            const dest = await CityModel.find().populate('places');
-            res.status(200).send(dest)
-        } catch(e){
+            const newDest = req.body;
+            const dest = await destiModel.create(newDest);
+
+            // Tìm city dựa trên tên trong địa điểm mới
+            const city = await CityModel.findOne({ cityName: newDest.city });
+            if (city) {
+                // Thêm ID của địa điểm mới vào mảng destinations trong city
+                city.destinations.push(dest._id);
+                await city.save();
+            }
+
+            res.status(200).send(dest);
+            console.log(dest);
+        } catch (e) {
             res.status(500).send({
                 message: e.message
             });
