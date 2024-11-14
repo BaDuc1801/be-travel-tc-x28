@@ -13,7 +13,13 @@ const citySchema = new mongoose.Schema({
     },
     img: {
         type: String,
-    }
+    },
+    destinations: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'destinations'
+        }
+    ]
 });
 
 const CityModel = mongoose.model('cities', citySchema);
