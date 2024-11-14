@@ -100,7 +100,7 @@ const CityController = {
     findCity: async (req, res) => {
         let { name } = req.params;  
         try {
-            let city = await CityModel.findOne({ cityName: name }.populate('destinations')); 
+            let city = await CityModel.findOne({ cityName: name }).populate('destinations'); 
             if (!city) {
                 return res.status(404).send({ message: "City not found" }); 
             }
