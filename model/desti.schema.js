@@ -6,10 +6,13 @@ const destiSchema = new mongoose.Schema({
   description: String,
   img: String,
   coordinates: {
-    type: { type: String, enum: ['Point'], required: true },
-    coordinates: { type: [Number], required: true }
+    type: [Number],  // Mảng [longitude, latitude]
+    required: true
   }
 });
+
+// Thêm chỉ mục 2dsphere cho trường coordinates
+destiSchema.index({ coordinates: "2dsphere" });
 
 const destiModel = mongoose.model('destinations', destiSchema);
 
