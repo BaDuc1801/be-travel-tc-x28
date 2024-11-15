@@ -9,7 +9,7 @@ cloudinary.config(getCloudinaryConfig);
 const CityController = {
     getListCity : async (req, res) => {
         try {
-            const dest = await CityModel.find().populate('places');
+            const dest = await CityModel.find().populate('destinations');
             res.status(200).send(dest)
         } catch(e){
             res.status(500).send({
