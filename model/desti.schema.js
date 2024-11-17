@@ -10,9 +10,6 @@ const destiSchema = new mongoose.Schema({
     required: true
   }
 });
-
-destiSchema.index({ coordinates: "2dsphere" });
-
 const destiModel = mongoose.model('destinations', destiSchema);
 
 export default destiModel;

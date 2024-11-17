@@ -22,8 +22,6 @@ const citySchema = new mongoose.Schema({
     ]
 });
 
-citySchema.index({ coordinates: "2dsphere" });
-
 const CityModel = mongoose.model('cities', citySchema);
 
 export default CityModel;
