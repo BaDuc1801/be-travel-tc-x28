@@ -40,36 +40,19 @@ const destiController = {
     postDesti: async (req, res) => {
         try {
             const newDest = req.body;
-            console.log('Request body:', newDest); // Kiểm tra dữ liệu gửi lên
-
-            // Kiểm tra xem có tên thành phố không
-            if (!newDest.city) {
-                return res.status(400).send({
-                    message: "City name is required"
-                });
-            }
-
-            // Tìm city và log kết quả
             const city = await CityModel.findOne({ cityName: newDest.city });
-            console.log('Found city:', city);
 
             if (!city) {
                 return res.status(404).send({
                     message: "City not found"
                 });
             }
-
-            // Tạo destination mới
             const dest = await destiModel.create(newDest);
-            console.log('Created destination:', dest);
-
-            // Thêm ID của địa điểm mới vào mảng destinations trong city
             city.destinations.push(dest._id);
             await city.save();
-
+c
             res.status(200).send(dest);
         } catch (e) {
-            console.error('Error in postDesti:', e); // Log lỗi chi tiết
             res.status(500).send({
                 message: e.message
             });
@@ -96,9 +79,17 @@ const destiController = {
         try {
             const { name } = req.params;
             const deletedDest = await destiModel.findOneAndDelete({ destiName: name });
+            
             if (!deletedDest) {
                 return res.status(404).send({ message: "Destination not found" });
             }
+    
+            // Tìm và cập nhật city để xóa destination ID
+            await CityModel.updateMany(
+                { destinations: deletedDest._id },
+                { $pull: { destinations: deletedDest._id } }
+            );
+    
             res.status(200).send({ message: "Destination deleted successfully" });
         } catch (e) {
             res.status(500).send({
