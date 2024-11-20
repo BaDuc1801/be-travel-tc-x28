@@ -50,7 +50,6 @@ const destiController = {
             const dest = await destiModel.create(newDest);
             city.destinations.push(dest._id);
             await city.save();
-c
             res.status(200).send(dest);
         } catch (e) {
             res.status(500).send({
