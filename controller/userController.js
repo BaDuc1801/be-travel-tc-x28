@@ -55,7 +55,7 @@ const userController = {
   },
   getAllUsers: async (req, res) => {
     try {
-      userInfo = userModel.find()
+      const userInfo = userModel.find()
       res.status(200).send(userInfo)
     } catch (e) {
       res.status(500).send({
