@@ -24,7 +24,8 @@ profilePic: {
     default: "https://res.cloudinary.com/dzpw9bihb/image/upload/v1726676632/wgbdsrflw8b1vdalkqht.jpg"
   },
   bannerImage: {
-    type: String
+    type: String,
+    default: ""
   }
 },
 followers: [{
