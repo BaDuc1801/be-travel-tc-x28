@@ -9,7 +9,7 @@ cloudinary.config(getCloudinaryConfig);
 const CityController = {
     getListCity : async (req, res) => {
         try {
-            const dest = await CityModel.find();
+            const dest = await CityModel.find().populate('destinations');
             res.status(200).send(dest)
         } catch(e){
             res.status(500).send({
@@ -100,7 +100,7 @@ const CityController = {
     findCity: async (req, res) => {
         let { name } = req.params;  
         try {
-            let city = await CityModel.findOne({ cityName: name }); 
+            let city = await CityModel.findOne({ cityName: name }).populate('destinations'); 
             if (!city) {
                 return res.status(404).send({ message: "City not found" }); 
             }
@@ -109,8 +109,7 @@ const CityController = {
             console.error(err);
             return res.status(500).send({ message: "Internal Server Error" });  
         }
-    }
-    
+    },
 }
 
 export default CityController;

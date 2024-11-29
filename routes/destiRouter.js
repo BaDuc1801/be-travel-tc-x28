@@ -10,6 +10,7 @@ const upload = multer({
 })
 
 destiRouter.get('/', destiController.getListDesti)
+destiRouter.get('/:id', destiController.getListDestiByID)
 destiRouter.post('', destiController.postDesti)
 destiRouter.put('/update/:name', destiController.updateDesti);
 destiRouter.put('/up-img', upload.single('img'), destiController.uploadImg);
