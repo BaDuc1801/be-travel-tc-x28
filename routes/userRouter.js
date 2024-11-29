@@ -8,5 +8,6 @@ userRouter.post('/auth/register', authMiddleware.registerUser, userController.re
 userRouter.post('/auth/login', authMiddleware.loginUser, userController.loginUser);
 userRouter.get('/:id', userController.getUserInfo)
 userRouter.post('/create', userController.createNewUser)
+userRouter.put('/:id', userController.updateUserInfo)
 
 export default userRouter
