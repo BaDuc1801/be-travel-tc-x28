@@ -55,7 +55,7 @@ const postController = {
   },
 
   getAllPost : async (req, res) => {
-    const all = PostModel.find({});
+    const all = await PostModel.find({});
     res.status(200).send(all);
   },
 
