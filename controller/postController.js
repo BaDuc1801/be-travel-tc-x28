@@ -55,10 +55,10 @@ const postController = {
   },
 
   getAllPost : async (req, res) => {
-    const all = PostModel.find();
+    const all = PostModel.find({});
     res.status(200).send(all);
   },
-  
+
 }
 
 export default postController
