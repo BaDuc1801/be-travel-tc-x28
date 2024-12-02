@@ -36,7 +36,7 @@ const CityController = {
             const updatedData = req.body; 
             const updatedDest = await CityModel.findOneAndUpdate({ cityName: name }, updatedData, { new: true });
             if (!updatedDest) {
-                return res.status(404).send({ message: "Citynation not found" });
+                return res.status(404).send({ message: "Citynation not found"});
             }
             res.status(200).send(updatedDest);
         } catch (e) {
