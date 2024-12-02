@@ -1,4 +1,4 @@
-import express from 'express'
+import express from 'express';
 import multer from 'multer';
 import CityController from '../controller/cityController.js';
 
@@ -6,14 +6,15 @@ const cityRouter = express.Router();
 
 const storage = multer.memoryStorage();
 const upload = multer({
-    storage: storage
-})
+    storage: storage,
+});
 
-cityRouter.get('/', CityController.getListCity)
-cityRouter.post('', CityController.postCity)
-cityRouter.get('/infor/:name', CityController.findCity)
+cityRouter.get('/', CityController.getListCity);
+cityRouter.post('', CityController.postCity);
+cityRouter.get('/infor/:name', CityController.findCity);
 cityRouter.put('/update/:name', CityController.updateCity);
 cityRouter.put('/up-img', upload.single('img'), CityController.uploadImg);
-cityRouter.delete('/delete/:name', CityController.deleteCity)
+cityRouter.delete('/delete/:name', CityController.deleteCity);
+cityRouter.post('/check-in', CityController.checkIn);
 
 export default cityRouter;

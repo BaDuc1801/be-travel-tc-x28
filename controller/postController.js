@@ -1,53 +1,116 @@
-import Post from '../model/postmodel.js';
+import dotenv from 'dotenv';
+import PostModel from "../model/postModel.js";
+dotenv.config();
 
-export const createPost = async (req, res) => {
-  try {
-    const { content, img, privacy, type, author, emotion, timestamp } = req.body;
+const PostController = {
+    getAllPosts: async (req, res) => {
+        try {
+            const posts = await PostModel.find().sort({ timestamp: -1 });
+            res.status(200).send(posts);
+        } catch (e) {
+            res.status(500).send({
+                message: e.message
+            });
+        }
+    },
 
-    if (!content) {
-      return res.status(400).json({ message: 'Nội dung bài viết là bắt buộc.' });
-    }
-    if (!privacy || (privacy !== 'private' && privacy !== 'public')) {
-      return res.status(400).json({ message: 'Giá trị privacy không hợp lệ.' });
-    }
-    if (!type || (type !== 'text' && type !== 'image')) {
-      return res.status(400).json({ message: 'Giá trị type không hợp lệ.' });
-    }
-    if (!author || !author.name || !author.avatar) {
-      return res.status(400).json({ message: 'Thông tin tác giả không đầy đủ.' });
-    }
-    if (!timestamp) {
-      return res.status(400).json({ message: 'Timestamp không được để trống.' });
-    }
+    createPost: async (req, res) => {
+        try {
+            const { content, img, privacy, type, author, emotion, timestamp } = req.body;
 
-    const newPost = new Post({
-      content,
-      img,
-      privacy,
-      type,
-      author,
-      emotion,
-      timestamp,
-    });
+            if (!content) {
+                return res.status(400).send({ message: 'Nội dung bài viết là bắt buộc.' });
+            }
+            if (!privacy || (privacy !== 'private' && privacy !== 'public')) {
+                return res.status(400).send({ message: 'Giá trị privacy không hợp lệ.' });
+            }
+            if (!type || (type !== 'text' && type !== 'image')) {
+                return res.status(400).send({ message: 'Giá trị type không hợp lệ.' });
+            }
+            if (!author || !author.name || !author.avatar) {
+                return res.status(400).send({ message: 'Thông tin tác giả không đầy đủ.' });
+            }
+            if (!timestamp) {
+                return res.status(400).send({ message: 'Timestamp không được để trống.' });
+            }
 
-    await newPost.save();
+            const newPost = await PostModel.create({ content, img, privacy, type, author, emotion, timestamp });
+            res.status(201).send(newPost);
+        } catch (e) {
+            res.status(500).send({
+                message: e.message
+            });
+        }
+    },
 
-    res.status(201).json({
-      message: 'Tạo bài viết thành công!',
-      post: newPost,
-    });
+    updatePost: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const updatedData = req.body;
 
-  } catch (error) {
-    if (error.name === 'ValidationError') {
-      return res.status(400).json({ message: 'Dữ liệu không hợp lệ', error: error.message });
+            const updatedPost = await PostModel.findByIdAndUpdate(id, updatedData, { new: true });
+            if (!updatedPost) {
+                return res.status(404).send({ message: 'Bài viết không tồn tại.' });
+            }
+
+            res.status(200).send(updatedPost);
+        } catch (e) {
+            res.status(500).send({
+                message: e.message
+            });
+        }
+    },
+
+    deletePost: async (req, res) => {
+        try {
+            const { id } = req.params;
+
+            const deletedPost = await PostModel.findByIdAndDelete(id);
+            if (!deletedPost) {
+                return res.status(404).send({ message: 'Bài viết không tồn tại.' });
+            }
+
+            res.status(200).send({ message: 'Xóa bài viết thành công.' });
+        } catch (e) {
+            res.status(500).send({
+                message: e.message
+            });
+        }
+    },
+
+    getPostById: async (req, res) => {
+        try {
+            const { id } = req.params;
+
+            const post = await PostModel.findById(id);
+            if (!post) {
+                return res.status(404).send({ message: 'Bài viết không tồn tại.' });
+            }
+
+            res.status(200).send(post);
+        } catch (e) {
+            res.status(500).send({
+                message: e.message
+            });
+        }
+    },
+
+    getPostsByAuthor: async (req, res) => {
+        try {
+            const { authorName } = req.query;
+
+            const posts = await PostModel.find({ "author.name": authorName }).sort({ timestamp: -1 });
+            if (!posts.length) {
+                return res.status(404).send({ message: 'Không có bài viết nào từ tác giả này.' });
+            }
+
+            res.status(200).send(posts);
+        } catch (e) {
+            res.status(500).send({
+                message: e.message
+            });
+        }
     }
-    if (error.code === 11000) {
-      return res.status(400).json({ message: 'Dữ liệu trùng lặp, không thể tạo bài viết.', error: error.message });
-    }
-
-    res.status(500).json({
-      message: 'Lỗi không xác định khi tạo bài viết.',
-      error: error.message,
-    });
-  }
 };
+
+export default PostController;

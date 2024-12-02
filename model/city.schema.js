@@ -14,10 +14,11 @@ const citySchema = new mongoose.Schema({
     img: {
         type: String,
     },
-    destinations: [
+    checkIns: [
         {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'destinations'
+            userName: { type: String, required: true }, 
+            checkInTime: { type: Date, default: Date.now }, 
+            image: { type: String }, 
         }
     ]
 });

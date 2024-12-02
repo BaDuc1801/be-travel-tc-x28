@@ -132,6 +132,8 @@ const destiController = {
             });
         }
     },
+    
+    
 }
 
 export default destiController;
