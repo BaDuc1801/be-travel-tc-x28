@@ -1,3 +1,4 @@
+import PostModel from '../model/postmodel.js';
 import Post from '../model/postmodel.js';
 
 const postController = {
@@ -52,6 +53,12 @@ const postController = {
       });
     };
   },
+
+  getAllPost : async (req, res) => {
+    const all = PostModel.find();
+    res.status(200).send(all);
+  },
+  
 }
 
 export default postController
