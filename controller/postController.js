@@ -48,7 +48,7 @@ const postController = {
 
   createPostForUser: async (req, res) => {
     try {
-      const { content, privacy, type, emotion, timestamp, userId } = req.body;
+      const { content, privacy, type, emotion, timestamp, userId, location } = req.body;
 
       if (!content) {
         return res.status(400).json({ message: 'Nội dung bài viết là bắt buộc.' });
@@ -68,6 +68,7 @@ const postController = {
         privacy,
         type,
         emotion,
+        location,
         timestamp,
         author: userId
       });
