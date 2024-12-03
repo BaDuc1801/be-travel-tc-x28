@@ -26,16 +26,6 @@ const postSchema = new mongoose.Schema({
     enum: ['text', 'image'],
     required: true,
   },
-  author: {
-    name: {
-      type: String,
-      required: true,
-    },
-    avatar: {
-      type: String,
-      required: true,
-    },
-  },
   emotion: {
     type: String,
     required: false,
@@ -44,6 +34,7 @@ const postSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  location: String,
 });
 
 const PostModel = mongoose.model('Post', postSchema);

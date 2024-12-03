@@ -1,10 +1,55 @@
 import PostModel from '../model/postmodel.js';
 import Post from '../model/postmodel.js';
+import { v2 as cloudinary } from 'cloudinary'
+import dotenv from 'dotenv';
+import userModel from '../model/user.schema.js';
+dotenv.config();
+
+const getCloudinaryConfig = JSON.parse(process.env.CLOUD_DINARY_CONFIG);
+cloudinary.config(getCloudinaryConfig);
 
 const postController = {
-  createPost : async (req, res) => {
+  uploadImgItem: async (req, res) => {
+    let imgs = req.files;
+    let postId = req.params.id;
+    let item = await PostModel.findOne({ _id: postId });
+
+    if (item) {
+      if (imgs && imgs.length > 0) {
+        try {
+          const listResult = [];
+          for (let file of imgs) {
+            const dataUrl = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+            const fileName = file.originalname.split('.')[0];
+
+            const result = await cloudinary.uploader.upload(dataUrl, {
+              public_id: fileName,
+              resource_type: 'auto',
+            });
+
+            listResult.push(result.url);
+          }
+
+          let rss = await PostModel.findByIdAndUpdate({ _id: postId }, { img: listResult });
+          return res.json({ message: 'Tệp được tải lên thành công.', rss });
+        } catch (err) {
+          return res.status(500).json({ error: 'Lỗi khi upload hình ảnh.', err });
+        }
+      } else {
+        return res.status(400).json({
+          message: 'Không có tệp được tải lên.'
+        });
+      }
+    } else {
+      return res.status(404).json({
+        message: 'Item không tồn tại.'
+      });
+    }
+  },
+
+  createPostForUser: async (req, res) => {
     try {
-      const { content, img, privacy, type, author, emotion, timestamp } = req.body;
+      const { content, privacy, type, emotion, timestamp, userId } = req.body;
 
       if (!content) {
         return res.status(400).json({ message: 'Nội dung bài viết là bắt buộc.' });
@@ -15,28 +60,33 @@ const postController = {
       if (!type || (type !== 'text' && type !== 'image')) {
         return res.status(400).json({ message: 'Giá trị type không hợp lệ.' });
       }
-      if (!author || !author.name || !author.avatar) {
-        return res.status(400).json({ message: 'Thông tin tác giả không đầy đủ.' });
-      }
       if (!timestamp) {
         return res.status(400).json({ message: 'Timestamp không được để trống.' });
       }
 
-      const newPost = new Post({
+      const newPost = new PostModel({
         content,
-        img,
         privacy,
         type,
-        author,
         emotion,
         timestamp,
       });
 
       await newPost.save();
 
+      const user = await userModel.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: 'Người dùng không tồn tại.' });
+      }
+
+      user.posts.push(newPost._id);
+
+      await user.save();
+
       res.status(201).json({
-        message: 'Tạo bài viết thành công!',
+        message: 'Tạo bài viết thành công và thêm vào người dùng.',
         post: newPost,
+        user: user,
       });
 
     } catch (error) {
@@ -51,10 +101,10 @@ const postController = {
         message: 'Lỗi không xác định khi tạo bài viết.',
         error: error.message,
       });
-    };
+    }
   },
 
-  getAllPost : async (req, res) => {
+  getAllPost: async (req, res) => {
     const all = await PostModel.find({});
     res.status(200).send(all);
   },

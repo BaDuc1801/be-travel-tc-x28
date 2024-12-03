@@ -1,9 +1,15 @@
 import express from 'express';
 const router = express.Router();
 import postController from '../controller/postController.js';
+import multer from 'multer';
 
-
-router.post('/', postController.createPost);
+const storage = multer.memoryStorage();
+const upload = multer({
+    storage: storage
+})
+// 
+router.post('/', postController.createPostForUser);
+router.put('/img/:id', upload.array('img'), postController.uploadImgItem);
 router.get('/', postController.getAllPost)
 
 export default router;
