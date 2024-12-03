@@ -106,7 +106,7 @@ const postController = {
   },
 
   getAllPost: async (req, res) => {
-    const all = await PostModel.find({});
+    const all = await PostModel.find({}).populate('author', 'name profilePic.profilePicture');
     res.status(200).send(all);
   },
 
