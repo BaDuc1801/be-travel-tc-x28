@@ -1,5 +1,4 @@
 import PostModel from '../model/postmodel.js';
-import Post from '../model/postmodel.js';
 import { v2 as cloudinary } from 'cloudinary'
 import dotenv from 'dotenv';
 import userModel from '../model/user.schema.js';
@@ -106,7 +105,7 @@ const postController = {
   },
 
   getAllPost: async (req, res) => {
-    const all = await PostModel.find({}).populate('author', 'name profilePic.profilePicture');
+    const all = await PostModel.find({}).populate('author', 'name profilePic.profilePicture').sort({ timestamp: -1 });
     res.status(200).send(all);
   },
 
