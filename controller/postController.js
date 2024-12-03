@@ -133,53 +133,62 @@ const postController = {
 
   likePost: async (req, res) => {
     const { userId, postId } = req.body;
-
+  
     try {
       const user = await userModel.findById(userId);
       const post = await PostModel.findById(postId);
-
+  
       if (!user || !post) {
         return res.status(404).json({ message: 'User or Post not found' });
       }
-
+  
       if (!user.likedPosts.includes(postId)) {
-        user.likedPosts.push(postId);
-        await user.save();
+        await userModel.findByIdAndUpdate(userId, {
+          $push: { likedPosts: postId }
+        });
         return res.status(200).json({ message: 'Post liked' });
       }
-
-      user.likedPosts = user.likedPosts.filter(id => id !== postId);
-      await user.save();
+  
+      await userModel.findByIdAndUpdate(userId, {
+        $pull: { likedPosts: postId }
+      });
       return res.status(200).json({ message: 'Post unliked' });
+  
     } catch (error) {
-      return res.status(500).json({ message: 'Error liking post', error: error.message });
+      console.error(error);
+      return res.status(500).json({ message: 'Error liking/unliking post', error: error.message });
     }
   },
+  
 
   bookmarkPost: async (req, res) => {
     const { userId, postId } = req.body;
-
+  
     try {
       const user = await userModel.findById(userId);
       const post = await PostModel.findById(postId);
-
+  
       if (!user || !post) {
         return res.status(404).json({ message: 'User or Post not found' });
       }
-
+  
       if (!user.bookmarkedPosts.includes(postId)) {
-        user.bookmarkedPosts.push(postId);
-        await user.save();
+        await userModel.findByIdAndUpdate(userId, {
+          $push: { bookmarkedPosts: postId }
+        });
         return res.status(200).json({ message: 'Post bookmarked' });
       }
-
-      user.bookmarkedPosts = user.bookmarkedPosts.filter(id => id !== postId);
-      await user.save();
+  
+      await userModel.findByIdAndUpdate(userId, {
+        $pull: { bookmarkedPosts: postId }
+      });
       return res.status(200).json({ message: 'Post unbookmarked' });
+  
     } catch (error) {
-      return res.status(500).json({ message: 'Error bookmarking post', error: error.message });
+      return res.status(500).json({ message: 'Error bookmarking/unbookmarking post', error: error.message });
     }
   },
+  
 }
 
 export default postController
