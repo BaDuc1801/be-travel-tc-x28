@@ -39,6 +39,7 @@ const postSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  
 });
 
 const PostModel = mongoose.model('Post', postSchema);

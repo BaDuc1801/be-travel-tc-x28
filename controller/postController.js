@@ -110,28 +110,76 @@ const postController = {
     res.status(200).send(all);
   },
 
-  deletePostById : async (req, res) => {
-    const { postId } = req.params;  
-  
+  deletePostById: async (req, res) => {
+    const { postId } = req.params;
+
     try {
       const deletedPost = await PostModel.findByIdAndDelete(postId);
-      
+
       if (!deletedPost) {
         return res.status(404).json({ message: 'Bài viết không tồn tại.' });
       }
-      
+
       await userModel.updateMany(
-        { posts: postId }, 
-        { $pull: { posts: postId } } 
+        { posts: postId },
+        { $pull: { posts: postId } }
       );
-      
+
       return res.status(200).json({ message: 'Bài viết đã được xóa thành công', post: deletedPost });
     } catch (error) {
       return res.status(500).json({ message: 'Lỗi khi xóa bài viết: ' + error.message });
     }
-  }
-  
+  },
 
+  likePost: async (req, res) => {
+    const { userId, postId } = req.body;
+
+    try {
+      const user = await userModel.findById(userId);
+      const post = await PostModel.findById(postId);
+
+      if (!user || !post) {
+        return res.status(404).json({ message: 'User or Post not found' });
+      }
+
+      if (!user.likedPosts.includes(postId)) {
+        user.likedPosts.push(postId);
+        await user.save();
+        return res.status(200).json({ message: 'Post liked' });
+      }
+
+      user.likedPosts = user.likedPosts.filter(id => id !== postId);
+      await user.save();
+      return res.status(200).json({ message: 'Post unliked' });
+    } catch (error) {
+      return res.status(500).json({ message: 'Error liking post', error: error.message });
+    }
+  },
+
+  bookmarkPost: async (req, res) => {
+    const { userId, postId } = req.body;
+
+    try {
+      const user = await userModel.findById(userId);
+      const post = await PostModel.findById(postId);
+
+      if (!user || !post) {
+        return res.status(404).json({ message: 'User or Post not found' });
+      }
+
+      if (!user.bookmarkedPosts.includes(postId)) {
+        user.bookmarkedPosts.push(postId);
+        await user.save();
+        return res.status(200).json({ message: 'Post bookmarked' });
+      }
+
+      user.bookmarkedPosts = user.bookmarkedPosts.filter(id => id !== postId);
+      await user.save();
+      return res.status(200).json({ message: 'Post unbookmarked' });
+    } catch (error) {
+      return res.status(500).json({ message: 'Error bookmarking post', error: error.message });
+    }
+  },
 }
 
 export default postController
