@@ -70,6 +70,7 @@ const postController = {
         type,
         emotion,
         timestamp,
+        author: userId
       });
 
       await newPost.save();
@@ -108,6 +109,28 @@ const postController = {
     const all = await PostModel.find({});
     res.status(200).send(all);
   },
+
+  deletePostById : async (req, res) => {
+    const { postId } = req.params;  
+  
+    try {
+      const deletedPost = await PostModel.findByIdAndDelete(postId);
+      
+      if (!deletedPost) {
+        return res.status(404).json({ message: 'Bài viết không tồn tại.' });
+      }
+      
+      await userModel.updateMany(
+        { posts: postId }, 
+        { $pull: { posts: postId } } 
+      );
+      
+      return res.status(200).json({ message: 'Bài viết đã được xóa thành công', post: deletedPost });
+    } catch (error) {
+      return res.status(500).json({ message: 'Lỗi khi xóa bài viết: ' + error.message });
+    }
+  }
+  
 
 }
 
