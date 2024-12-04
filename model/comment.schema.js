@@ -20,11 +20,11 @@ const commentSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  replies: {
+  replies: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'comments', 
     required: false,
-  },
+  }],
 });
 
 const commentModel = new mongoose.model('comments', commentSchema);
