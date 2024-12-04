@@ -47,6 +47,9 @@ const userController = {
         name: user.name,
         email: user.email,
         profilePic: user.profilePic,
+        likedPosts: user.likedPosts,
+        bookmarkedPosts: user.bookmarkedPosts,
+        likedComments: user.likedComments,
         token: token,
       });
     } catch (error) {

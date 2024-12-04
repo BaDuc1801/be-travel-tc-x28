@@ -6,6 +6,7 @@ import destiRouter from "./routes/destiRouter.js";
 import userRouter from "./routes/userRouter.js";
 import cityRouter from "./routes/cityRouter.js";
 import postRouter from "./routes/postRoutes.js"; 
+import commentRouter from "./routes/commentRouter.js";
 
 dotenv.config();  
 
@@ -19,6 +20,7 @@ app.use('/user', userRouter);
 app.use('/destinations', destiRouter);
 app.use('/cities', cityRouter);
 app.use('/post', postRouter);   
+app.use('/comments', commentRouter)
 
 app.get("/", (req, res) => {
   res.status(200).json({ message: "hello" });

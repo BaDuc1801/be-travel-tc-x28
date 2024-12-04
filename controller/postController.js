@@ -2,6 +2,7 @@ import PostModel from '../model/postmodel.js';
 import { v2 as cloudinary } from 'cloudinary'
 import dotenv from 'dotenv';
 import userModel from '../model/user.schema.js';
+import commentModel from '../model/comment.schema.js';
 dotenv.config();
 
 const getCloudinaryConfig = JSON.parse(process.env.CLOUD_DINARY_CONFIG);
@@ -106,7 +107,20 @@ const postController = {
   },
 
   getAllPost: async (req, res) => {
-    const all = await PostModel.find({}).populate('author', 'name profilePic.profilePicture').sort({ timestamp: -1 });
+    const all = await PostModel.find({}).populate({
+      path: 'comments',
+      populate: {
+        path: 'author',
+        select: 'username',
+      },
+    })
+      .populate({
+        path: 'users',
+        populate: {
+          path: 'author',
+          select: 'username',
+        },
+      }).sort({ timestamp: -1 });
     res.status(200).send(all);
   },
 
@@ -133,62 +147,88 @@ const postController = {
 
   likePost: async (req, res) => {
     const { userId, postId } = req.body;
-  
+
     try {
       const user = await userModel.findById(userId);
       const post = await PostModel.findById(postId);
-  
+
       if (!user || !post) {
         return res.status(404).json({ message: 'User or Post not found' });
       }
-  
+
       if (!user.likedPosts.includes(postId)) {
         await userModel.findByIdAndUpdate(userId, {
           $push: { likedPosts: postId }
         });
         return res.status(200).json({ message: 'Post liked' });
       }
-  
+
       await userModel.findByIdAndUpdate(userId, {
         $pull: { likedPosts: postId }
       });
       return res.status(200).json({ message: 'Post unliked' });
-  
+
     } catch (error) {
       console.error(error);
       return res.status(500).json({ message: 'Error liking/unliking post', error: error.message });
     }
   },
-  
 
   bookmarkPost: async (req, res) => {
     const { userId, postId } = req.body;
-  
+
     try {
       const user = await userModel.findById(userId);
       const post = await PostModel.findById(postId);
-  
+
       if (!user || !post) {
         return res.status(404).json({ message: 'User or Post not found' });
       }
-  
+
       if (!user.bookmarkedPosts.includes(postId)) {
         await userModel.findByIdAndUpdate(userId, {
           $push: { bookmarkedPosts: postId }
         });
         return res.status(200).json({ message: 'Post bookmarked' });
       }
-  
+
       await userModel.findByIdAndUpdate(userId, {
         $pull: { bookmarkedPosts: postId }
       });
       return res.status(200).json({ message: 'Post unbookmarked' });
-  
+
     } catch (error) {
       return res.status(500).json({ message: 'Error bookmarking/unbookmarking post', error: error.message });
     }
   },
-  
+
+  addCommentToPost: async (req, res) => {
+    const { userId, postId, content } = req.body;
+
+    try {
+      const user = await userModel.findById(userId);
+      const post = await PostModel.findById(postId);
+
+      if (!user || !post) {
+        return res.status(404).json({ message: 'User or Post not found' });
+      }
+
+      const newComment = new commentModel({
+        content,
+        author: userId,
+        postId,
+      });
+
+      await newComment.save();
+      await PostModel.findByIdAndUpdate(postId, {
+        $push: { comments: newComment._id }
+      });
+      return res.status(201).json({ message: 'Comment added successfully', comment: newComment });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Error adding comment to post', error: error.message });
+    }
+  }
 }
 
 export default postController

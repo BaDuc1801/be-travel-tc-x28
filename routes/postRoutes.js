@@ -13,6 +13,7 @@ router.put('/img/:id', upload.array('img'), postController.uploadImgItem);
 router.get('/', postController.getAllPost);
 router.delete('/delete/:id', postController.deletePostById);
 router.put('/like', postController.likePost);
-router.put('/bookmark', postController.bookmarkPost)
+router.put('/bookmark', postController.bookmarkPost);
+router.put('/cmt', postController.addCommentToPost)
 
 export default router;
