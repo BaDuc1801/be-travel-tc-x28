@@ -107,21 +107,33 @@ const postController = {
   },
 
   getAllPost: async (req, res) => {
-    const all = await PostModel.find({}).populate({
-      path: 'comments',
-      populate: {
-        path: 'author',
-        select: 'username',
-      },
-    })
-      .populate({
-        path: 'users',
-        populate: {
-          path: 'author',
-          select: 'username',
-        },
-      }).sort({ timestamp: -1 });
-    res.status(200).send(all);
+    try {
+      const allPosts = await PostModel.find({})
+        .populate({
+          path: 'comments', // Populate the comments of the post
+          populate: {
+            path: 'author', // Populate the author of each comment
+            select: 'name profilePic.profilePicture', // Include only the username of the comment's author
+          },
+          populate: {
+            path: 'replies', // Populate the replies for each comment
+            populate: {
+              path: 'author', // Populate the author of each reply
+              select: 'name profilePic.profilePicture', // Include only the username of the reply's author
+            },
+          }
+        })
+        .populate({
+          path: 'author',  // Populate the author of the post itself
+          select: 'name profilePic.profilePicture',  // Select the necessary fields from the post's author
+        })
+        .sort({ timestamp: -1 });  // Sort posts by timestamp in descending order
+  
+      res.status(200).send(allPosts);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Error fetching posts', error: error.message });
+    }
   },
 
   deletePostById: async (req, res) => {

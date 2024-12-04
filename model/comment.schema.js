@@ -20,7 +20,7 @@ const commentSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  replyTo: {
+  replies: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'comments', 
     required: false,
