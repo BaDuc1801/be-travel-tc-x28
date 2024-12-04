@@ -48,16 +48,10 @@ const commentController = {
         }
     },
 
-    replyToComment: async (req, res) => {
+    replyToComment : async (req, res) => {
         const { userId, commentId, content } = req.body;  // Extract userId, commentId, and reply content
 
         try {
-            // Find the parent comment to reply to
-            const parentComment = await commentModel.findById(commentId);
-            if (!parentComment) {
-                return res.status(404).json({ message: 'Parent comment not found' });
-            }
-
             // Create a new reply comment
             const reply = new commentModel({
                 content,
@@ -68,10 +62,16 @@ const commentController = {
             // Save the reply comment
             await reply.save();
 
-            // Add the reply to the parent comment's replies array
-            parentComment.replies.push(reply._id);
-            await parentComment.save();
+            // Use findByIdAndUpdate to add the new reply to the parent comment's replies array
+            await commentModel.findByIdAndUpdate(
+                commentId,  // Find the parent comment by its ID
+                {
+                    $push: { replies: reply._id },  // Push the reply's _id into the replies array
+                },
+                { new: true }  // Return the updated document
+            );
 
+            // Return the reply as the response
             res.status(201).json({ message: 'Reply added', reply });
         } catch (error) {
             console.error(error);
