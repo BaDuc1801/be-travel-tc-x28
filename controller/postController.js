@@ -10,19 +10,19 @@ cloudinary.config(getCloudinaryConfig);
 
 const populateRepliesRecursively = async (comments) => {
   for (const comment of comments) {
-      // Populate replies for the current comment
-      const populatedComment = await comment.populate({
-          path: 'replies',
-          populate: {
-              path: 'author',
-              select: 'name profilePic.profilePicture',
-          },
-      });
+    // Populate replies for the current comment
+    const populatedComment = await comment.populate({
+      path: 'replies',
+      populate: {
+        path: 'author',
+        select: 'name profilePic.profilePicture',
+      },
+    });
 
-      // Nếu có replies, gọi hàm đệ quy cho replies
-      if (populatedComment.replies && populatedComment.replies.length > 0) {
-          await populateRepliesRecursively(populatedComment.replies);
-      }
+    // Nếu có replies, gọi hàm đệ quy cho replies
+    if (populatedComment.replies && populatedComment.replies.length > 0) {
+      await populateRepliesRecursively(populatedComment.replies);
+    }
   }
 };
 
@@ -126,31 +126,31 @@ const postController = {
 
   getAllPost: async (req, res) => {
     try {
-        const allPosts = await PostModel.find({})
-            .populate({
-                path: 'comments', // Populate the comments of the post
-                populate: {
-                    path: 'author',  // Populate the author of each comment
-                    select: 'name profilePic.profilePicture',  // Select name and profile picture
-                },
-            })
-            .populate({
-                path: 'author',  // Populate the author of the post
-                select: 'name profilePic.profilePicture',  // Select name and profile picture
-            })
-            .sort({ timestamp: -1 });  // Sort posts by timestamp in descending order
+      const allPosts = await PostModel.find({})
+        .populate({
+          path: 'comments', // Populate the comments of the post
+          populate: {
+            path: 'author',  // Populate the author of each comment
+            select: 'name profilePic.profilePicture',  // Select name and profile picture
+          },
+        })
+        .populate({
+          path: 'author',  // Populate the author of the post
+          select: 'name profilePic.profilePicture',  // Select name and profile picture
+        })
+        .sort({ timestamp: -1 });  // Sort posts by timestamp in descending order
 
-        // Populate replies recursively
-        for (const post of allPosts) {
-            await populateRepliesRecursively(post.comments);
-        }
+      // Populate replies recursively
+      for (const post of allPosts) {
+        await populateRepliesRecursively(post.comments);
+      }
 
-        res.status(200).send(allPosts);
+      res.status(200).send(allPosts);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Error fetching posts', error: error.message });
+      console.error(error);
+      res.status(500).json({ message: 'Error fetching posts', error: error.message });
     }
-},
+  },
   deletePostById: async (req, res) => {
     const { postId } = req.params;
 
@@ -263,25 +263,18 @@ const postController = {
     try {
       const post = await PostModel.findById(postId).populate({
         path: 'comments', // Populate the comments of the post
-        populate: [
-          {
-            path: 'author',  // Populate the author of each comment
-            select: 'name profilePic.profilePicture',  // Select name and profile picture
-          },
-          {
-            path: 'replies', // Populate the replies for each comment
-            populate: {
-              path: 'author',  // Populate the author of each reply
-              select: 'name profilePic.profilePicture',  // Select name and profile picture
-            },
-          },
-        ],
-      })
-        .sort({ timestamp: -1 });  // Sort posts by timestamp in descending order
+        populate: {
+          path: 'author',  // Populate the author of each comment
+          select: 'name profilePic.profilePicture',  // Select name and profile picture
+        },
+      });
 
       if (!post) {
         return res.status(404).json({ message: 'Bài viết không tồn tại.' });
       }
+
+      // Populate replies recursively
+      await populateRepliesRecursively(post.comments);
 
       return res.status(200).json({
         message: 'Lấy bình luận thành công.',
