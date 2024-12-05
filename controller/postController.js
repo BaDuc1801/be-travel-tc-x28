@@ -111,21 +111,23 @@ const postController = {
       const allPosts = await PostModel.find({})
         .populate({
           path: 'comments', // Populate the comments of the post
-          populate: {
-            path: 'author', // Populate the author of each comment
-            select: 'name profilePic.profilePicture', // Include only the username of the comment's author
-          },
-          populate: {
-            path: 'replies', // Populate the replies for each comment
-            populate: {
-              path: 'author', // Populate the author of each reply
-              select: 'name profilePic.profilePicture', // Include only the username of the reply's author
+          populate: [
+            {
+              path: 'author',  // Populate the author of each comment
+              select: 'name profilePic.profilePicture',  // Select name and profile picture
             },
-          }
+            {
+              path: 'replies', // Populate the replies for each comment
+              populate: {
+                path: 'author',  // Populate the author of each reply
+                select: 'name profilePic.profilePicture',  // Select name and profile picture
+              },
+            },
+          ],
         })
         .populate({
-          path: 'author',  // Populate the author of the post itself
-          select: 'name profilePic.profilePicture',  // Select the necessary fields from the post's author
+          path: 'author',  // Populate the author of the post
+          select: 'name profilePic.profilePicture',  // Select name and profile picture
         })
         .sort({ timestamp: -1 });  // Sort posts by timestamp in descending order
   
