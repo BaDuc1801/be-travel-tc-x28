@@ -242,7 +242,43 @@ const postController = {
       console.error(error);
       return res.status(500).json({ message: 'Error adding comment to post', error: error.message });
     }
-  }
+  },
+
+  getCommentByPostId: async (req, res) => {
+    const { postId } = req.params;
+
+    try {
+      const post = await PostModel.findById(postId).populate({
+        path: 'comments', // Populate the comments of the post
+        populate: [
+          {
+            path: 'author',  // Populate the author of each comment
+            select: 'name profilePic.profilePicture',  // Select name and profile picture
+          },
+          {
+            path: 'replies', // Populate the replies for each comment
+            populate: {
+              path: 'author',  // Populate the author of each reply
+              select: 'name profilePic.profilePicture',  // Select name and profile picture
+            },
+          },
+        ],
+      })
+      .sort({ timestamp: -1 });  // Sort posts by timestamp in descending order
+
+      if (!post) {
+        return res.status(404).json({ message: 'Bài viết không tồn tại.' });
+      }
+
+      return res.status(200).json({
+        message: 'Lấy bình luận thành công.',
+        comments: post.comments, // Trả về danh sách bình luận của bài viết
+      });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Lỗi khi lấy bình luận', error: error.message });
+    }
+  },
 }
 
 export default postController

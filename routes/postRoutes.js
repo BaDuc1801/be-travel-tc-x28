@@ -11,6 +11,7 @@ const upload = multer({
 router.post('/', postController.createPostForUser);
 router.put('/img/:id', upload.array('img'), postController.uploadImgItem);
 router.get('/', postController.getAllPost);
+router.get('/:postId', postController.getCommentByPostId)
 router.delete('/delete/:id', postController.deletePostById);
 router.put('/like', postController.likePost);
 router.put('/bookmark', postController.bookmarkPost);
