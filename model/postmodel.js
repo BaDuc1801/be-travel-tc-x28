@@ -36,7 +36,7 @@ const postSchema = new mongoose.Schema({
     required: false,
   },
   timestamp: {
-    type: String,
+    type: Date,
     required: true,
   },
   comments: [{
