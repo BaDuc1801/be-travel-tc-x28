@@ -117,11 +117,7 @@ const postController = {
               select: 'name profilePic.profilePicture',  // Select name and profile picture
             },
             {
-              path: 'replies', // Populate the replies for each comment
-              populate: {
-                path: 'author',  // Populate the author of each reply
-                select: 'name profilePic.profilePicture',  // Select name and profile picture
-              },
+              path: 'replies'
             },
           ],
         })
