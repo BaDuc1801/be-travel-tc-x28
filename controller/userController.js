@@ -69,8 +69,8 @@ const userController = {
   getUserInfo: async (req, res) => {
     try {
       const userId = req.params.id;
-      if(!userId || !mongoose.Types.ObjectId.isValid(userId)) {
-        return res.status(400).send({message: "Invalid user ID"})
+      if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).send({ message: "Invalid user ID" })
       }
 
       const user = await userModel.findById(userId);
@@ -90,14 +90,85 @@ const userController = {
   },
   createNewUser: async (req, res) => {
     try {
-      const { name, email, password, profilePic } = req.body;
+      const { name, email } = req.body;
       const existingUser = userModel.findOne({ $or: [{ email }, { name }] })
       if (existingUser) {
         console.log("User already exists")
         return res.status(400).send("User already exists");
       }
     } catch (error) {
+    }
+  },
 
+  // hàm để thêm follow 
+  followUser: async (req, res) => {
+
+    const { followerId, followeeId } = req.body;
+
+    try {
+      if (!followerId || !followeeId) {
+        return res.status(400).json({ message: 'followerId and followeeId are required' });
+      }
+
+      const follower = await userModel.findById(followerId);
+      const followee = await userModel.findById(followeeId);
+
+      if (!follower || !followee) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      if (follower.following.includes(followeeId)) {
+        return res.status(400).json({ message: 'You are already following this user' });
+      }
+
+      follower.following.push(followeeId);
+
+      followee.followers.push(followerId);
+
+      await follower.save();
+      await followee.save();
+
+      return res.status(200).json({ message: 'Followed successfully' });
+
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Error while following user' });
+    }
+  },
+
+  getFollowing: async (req, res) => {
+    const  userId  = req.params.id; 
+
+    try {
+      const user = await userModel.findById(userId).populate('following', 'name email profilePic');
+
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+     return res.status(200).json({ following: user.following });
+
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Error while fetching following users' });
+    }
+  },
+
+  getFollower: async (req, res) => {
+    const  userId  = req.params.id; 
+
+    try {
+      const user = await userModel.findById(userId).populate('followers', 'name email profilePic');
+
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+     return res.status(200).json({ followers: user.followers });
+
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Error while fetching followers users' });
     }
   }
 

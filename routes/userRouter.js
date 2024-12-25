@@ -9,5 +9,8 @@ userRouter.post('/auth/login', authMiddleware.loginUser, userController.loginUse
 userRouter.get('/:id', userController.getUserInfo)
 userRouter.get('/', userController.getAllUsers)
 userRouter.post('/create', userController.createNewUser)
+userRouter.post('/follow', userController.followUser)
+userRouter.get('/following/:id', userController.getFollowing)
+userRouter.get('/follower/:id', userController.getFollower)
 
 export default userRouter

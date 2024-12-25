@@ -3,41 +3,34 @@ import userModel from "../model/user.schema.js";
 
 const commentController = {
     likeComment: async (req, res) => {
-        const { userId, commentId } = req.body;  // Extract userId and commentId from request body
+        const { userId, commentId } = req.body;  
 
         try {
-            // Find the user and the comment by their IDs
             const user = await userModel.findById(userId);
             const comment = await commentModel.findById(commentId);
 
-            // Check if the user or the comment does not exist
             if (!user || !comment) {
                 return res.status(404).json({ message: 'User or Comment not found' });
             }
 
-            // Check if the user has already liked the comment
             if (!user.likedComments.includes(commentId)) {
-                // User hasn't liked the comment yet, add it to their likedComments array
                 await userModel.findByIdAndUpdate(userId, {
-                    $push: { likedComments: commentId },  // Add the commentId to likedComments array
+                    $push: { likedComments: commentId }, 
                 });
 
-                // Increment the like count on the comment
                 await commentModel.findByIdAndUpdate(commentId, {
-                    $inc: { count: 1 },  // Increment like count by 1
+                    $inc: { count: 1 },  
                 });
 
                 return res.status(200).json({ message: 'Comment liked' });
             }
 
-            // If the user has already liked the comment, remove the like
             await userModel.findByIdAndUpdate(userId, {
-                $pull: { likedComments: commentId },  // Remove the commentId from likedComments array
+                $pull: { likedComments: commentId },  
             });
 
-            // Decrement the like count on the comment
             await commentModel.findByIdAndUpdate(commentId, {
-                $inc: { count: -1 },  // Decrement like count by 1
+                $inc: { count: -1 },  
             });
 
             return res.status(200).json({ message: 'Comment unliked' });
@@ -49,29 +42,23 @@ const commentController = {
     },
 
     replyToComment : async (req, res) => {
-        const { userId, commentId, content } = req.body;  // Extract userId, commentId, and reply content
+        const { userId, commentId, content } = req.body;  
 
         try {
-            // Create a new reply comment
             const reply = new commentModel({
                 content,
-                author: userId,  // Set the userId as the author of the reply
+                author: userId,  
                 timestamp: new Date(),
             });
-
-            // Save the reply comment
             await reply.save();
-
-            // Use findByIdAndUpdate to add the new reply to the parent comment's replies array
             await commentModel.findByIdAndUpdate(
-                commentId,  // Find the parent comment by its ID
+                commentId, 
                 {
-                    $push: { replies: reply._id },  // Push the reply's _id into the replies array
+                    $push: { replies: reply._id },  
                 },
-                { new: true }  // Return the updated document
+                { new: true } 
             );
 
-            // Return the reply as the response
             res.status(201).json({ message: 'Reply added', reply });
         } catch (error) {
             console.error(error);
